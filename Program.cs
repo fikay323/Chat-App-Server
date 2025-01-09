@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => {
-        policy.WithOrigins("https://chat-app-client-fikay323s-projects.vercel.app", "http://localhost:4200")
+        policy.WithOrigins("https://chat-app-client-fikay323s-projects.vercel.app", "http://localhost:4200", "https://chat-app-client-git-main-fikay323s-projects.vercel.app", "https://chat-app-client-gamma-five.vercel.app", "https://chat-app-client-jq7r3vsj0-fikay323s-projects.vercel.app")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
