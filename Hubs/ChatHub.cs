@@ -1,18 +1,18 @@
-﻿using Backend.Models;
-using Backend.Services;
+﻿using Backend.Contracts;
+using Backend.Models;
 using Microsoft.AspNetCore.SignalR;
-using System.Text.RegularExpressions;
 
 namespace Backend.Hubs {
-    // Hubs/ChatHub.cs
     public class ChatHub : Hub {
-        private readonly MessageService _messageService;
-        private readonly UserService _userService;
+        private readonly IMessageService _messageService;
+        private readonly IUserService _userService;
+        private readonly IPushNotificationService _pushNotificationService;
         private static Dictionary<string, string> _allConnections = new Dictionary<string, string>();
 
-        public ChatHub(MessageService messageService, UserService userService) {
+        public ChatHub(IMessageService messageService, IUserService userService, IPushNotificationService pushNotificationService) {
             _messageService = messageService;
             _userService = userService;
+            _pushNotificationService = pushNotificationService;
         }
 
         public async Task Register(string username, string password) {
@@ -60,7 +60,7 @@ namespace Backend.Hubs {
 
             if (Clients != null && Clients.Client(messageToBeSent.to) != null) {
                 List<string> connectionsToSendTo = GetAllUserInstances(messageToBeSent.to);
-
+                await _pushNotificationService.SendNotificationToUser(message.to, message.senderName, message.content);
                 if (connectionsToSendTo.Any()) {
                     await Clients.Clients(connectionsToSendTo).SendAsync("receive-message", message);
                 } else {

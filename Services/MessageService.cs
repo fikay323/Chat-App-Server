@@ -1,8 +1,11 @@
-﻿using Backend.Models;
+﻿using Backend.Contracts;
+using Backend.Models;
+using Microsoft.OpenApi.Any;
 using System.Text.Json;
 
 namespace Backend.Services {
-    public class MessageService {
+    public class MessageService : IMessageService
+    {
         private readonly string _filePath = "messages.json";
 
         public async Task SendMessage(Message message) {

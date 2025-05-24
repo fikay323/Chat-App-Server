@@ -1,4 +1,5 @@
-﻿using Backend.Models;
+﻿using Backend.Contracts;
+using Backend.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,13 +7,8 @@ using System.Linq;
 using System.Text.Json;
 
 namespace Backend.Services {
-    // Services/UserService.cs
-    public class UserService {
+    public class UserService: IUserService {
         private readonly string _filePath = "users.json";
-
-        public UserService() {
-            //No longer using in memory list
-        }
 
         public async Task<User> Register(string username, string password) {
             var users = await LoadUsersFromJson();

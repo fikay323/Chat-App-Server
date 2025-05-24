@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Backend.Models; // Replace with your namespace
+using Backend.Models;
 using System.Text.Json;
 
 namespace Backend.Controllers {

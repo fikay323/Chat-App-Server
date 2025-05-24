@@ -1,6 +1,8 @@
+using Backend.Contracts;
 using Backend.Hubs;
 using Backend.Models;
 using Backend.Services;
+using Backend.Services.Firebase;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,13 +25,20 @@ builder.Services.AddCors(options => {
 
 // Register services
 builder.Services.AddSingleton(users);
-builder.Services.AddTransient<UserService>();
-builder.Services.AddTransient<MessageService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IMessageService, MessageService>();
+
+builder.Services.AddSingleton<IDeviceTokenService, DeviceTokenService>();
+builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
+
 
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+var firebaseKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "firebase-key.json");
+FirebaseInitializer.Initialize(firebaseKeyPath);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
@@ -39,14 +48,9 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseCors("AllowAll");
-//app.UseCors(builder => {
-//    builder.AllowAnyOrigin()
-//           .AllowAnyHeader()
-//           .AllowAnyMethod();
-//});
 app.UseHttpsRedirection();
 
-app.MapHub<ChatHub>("/chatHub"); // Corrected Hub endpoint
+app.MapHub<ChatHub>("/chatHub");
 
 app.UseRouting();
 
