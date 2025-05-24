@@ -38,7 +38,7 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 var firebaseKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "firebase-key.json");
-FirebaseInitializer.Initialize(firebaseKeyPath);
+FirebaseInitializer.InitializeFromEnv();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
