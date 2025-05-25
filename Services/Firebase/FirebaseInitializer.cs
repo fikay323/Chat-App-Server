@@ -12,13 +12,29 @@ namespace Backend.Services.Firebase
 
             if (!string.IsNullOrEmpty(json))
             {
-                var tempPath = Path.Combine(Path.GetTempPath(), "firebase-key.json");
-                File.WriteAllText(tempPath, json, Encoding.UTF8);
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", tempPath);
+                try
+                {
+                    var tempPath = Path.Combine(Path.GetTempPath(), "firebase-key-temp.json");
+                    File.WriteAllText(tempPath, json, Encoding.UTF8);
+
+                    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", tempPath, EnvironmentVariableTarget.Process);
+
+                    if (FirebaseApp.DefaultInstance == null)
+                    {
+                        FirebaseApp.Create(new AppOptions()
+                        {
+                            Credential = GoogleCredential.GetApplicationDefault()
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Firebase initialization failed during FirebaseApp.Create(). Check JSON format and credentials.", ex);
+                }
             }
             else
             {
-                throw new Exception("Firebase credentials not found in environment variables.");
+                throw new Exception("Firebase credentials not found in environment variables. Please ensure GOOGLE_APPLICATION_CREDENTIALS_JSON is set correctly.");
             }
         }
     }
