@@ -16,6 +16,17 @@ namespace Backend.Services
             return tokens.FirstOrDefault(t => t.UserId == userId)?.Token;
         }
 
+        public async Task RemoveTokenFromJson(string userId)
+        {
+            var tokens = await LoadTokensFromJson();
+            var tokenToRemove = tokens.FirstOrDefault(t => t.UserId == userId);
+            if (tokenToRemove != null)
+            {
+                tokens.Remove(tokenToRemove);
+                await SaveTokensToJson(tokens);
+            }
+        }
+
         public async Task RegisterTokenAsync(string userId, string token)
         {
             var tokens = await LoadTokensFromJson();

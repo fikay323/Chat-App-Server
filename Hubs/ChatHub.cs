@@ -7,12 +7,14 @@ namespace Backend.Hubs {
         private readonly IMessageService _messageService;
         private readonly IUserService _userService;
         private readonly IPushNotificationService _pushNotificationService;
+        private readonly IDeviceTokenService _deviceTokenService;
         private static Dictionary<string, string> _allConnections = new Dictionary<string, string>();
 
-        public ChatHub(IMessageService messageService, IUserService userService, IPushNotificationService pushNotificationService) {
+        public ChatHub(IMessageService messageService, IUserService userService, IPushNotificationService pushNotificationService, IDeviceTokenService deviceTokenService) {
             _messageService = messageService;
             _userService = userService;
             _pushNotificationService = pushNotificationService;
+            _deviceTokenService = deviceTokenService;
         }
 
         public async Task Register(string username, string password) {
@@ -48,6 +50,22 @@ namespace Backend.Hubs {
             }
         }
 
+        public async Task Logout()
+        {
+            string connectionID = Context.ConnectionId;
+            if (_allConnections.ContainsKey(connectionID))
+            {
+                string userID = _allConnections[connectionID];
+                _allConnections.Remove(connectionID);
+                await _deviceTokenService.RemoveTokenFromJson(userID);
+                await Clients.Caller.SendAsync("LogoutSuccessful", userID);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("LogoutFailed", "You are not logged in.");
+            }
+        }
+
         public async Task SendMessage(Message messageToBeSent) {
             var message = new Message {
                 sentBy = messageToBeSent.sentBy,
@@ -64,7 +82,6 @@ namespace Backend.Hubs {
                 if (connectionsToSendTo.Any()) {
                     await Clients.Clients(connectionsToSendTo).SendAsync("receive-message", message);
                 } else {
-                    // Handle the case where the user is not connected
                     await _messageService.SendMessage(message);
                 }
             }
@@ -72,10 +89,7 @@ namespace Backend.Hubs {
 
         private static void AddConnectionToStore(string connectionID, User user) {
             _allConnections.Add(connectionID, user.UserID);
-            Console.WriteLine(_allConnections.Count);
         }
-
-        
 
         public override async Task OnConnectedAsync() {
             await base.OnConnectedAsync();
