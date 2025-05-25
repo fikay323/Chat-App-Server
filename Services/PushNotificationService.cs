@@ -17,10 +17,10 @@ namespace Backend.Services
             var message = new Message
             {
                 Token = token,
-                Notification = new Notification
+                Data = new Dictionary<string, string>
                 {
-                    Title = title,
-                    Body = body
+                    { "title", title },
+                    { "body", body }
                 },
                 Android = new AndroidConfig
                 {
